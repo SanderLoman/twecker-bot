@@ -1,9 +1,7 @@
 const Web3 = require("web3")
 const TelegramBot = require("node-telegram-bot-api")
 
-const provider_eth = new Web3.providers.WebsocketProvider(
-    "wss://eth-goerli.g.alchemy.com/v2/6aL8B2qy_mFByOLyc7mBeOTk6J-yr2a8"
-)
+const provider_eth = new Web3.providers.WebsocketProvider("ws://127.0.0.1:3334")
 
 const web3 = new Web3(provider_eth)
 
@@ -269,5 +267,29 @@ const tokenABI = [
         type: "function",
     },
 ]
+
+const factoryContract = new web3.eth.Contract(factoryABI, factoryAddress)
+
+web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
+    if (error) {
+        console.error("Error:", error)
+        return
+    }
+
+    const blockNumber = blockHeader.number
+    try {
+        const block = await web3.eth.getBlock(blockNumber, true) // Set the second argument to true to get transaction details
+        const transactionCount = block.transactions.length
+        console.log(
+            `Block number: ${blockNumber} - Transaction count: ${transactionCount}`
+        )
+        // check if to = null then it is a token creation, and then check the logs for the name
+        block.transactions.forEach((transaction) => {
+            console.log(`TxHash ${transaction.hash} To: ${transaction.to}`)
+        })
+    } catch (err) {
+        console.error("Error fetching block:", err)
+    }
+})
 
 console.log("Listening for new tokens...")
