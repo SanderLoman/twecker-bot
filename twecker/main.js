@@ -1,7 +1,9 @@
 const Web3 = require("web3")
 const TelegramBot = require("node-telegram-bot-api")
 
-const provider_eth = new Web3.providers.WebsocketProvider("ws://127.0.0.1:3334")
+const provider_eth = new Web3.providers.WebsocketProvider(
+    "wss://eth-goerli.g.alchemy.com/v2/1MbIIGJZEo4JkJW1jXVjnQuK9x6WqRLO"
+)
 
 const web3 = new Web3(provider_eth)
 
@@ -286,6 +288,19 @@ web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
         // check if to = null then it is a token creation, and then check the logs for the name
         block.transactions.forEach((transaction) => {
             console.log(`TxHash ${transaction.hash} To: ${transaction.to}`)
+            // rewrite this later to check for the event PairCreated
+            if (transaction.to === null) {
+                web3.eth.getTransactionReceipt(
+                    transaction.hash,
+                    (error, receipt) => {
+                        if (error) {
+                            console.error(error)
+                        } else {
+                            console.log(receipt.logs)
+                        }
+                    }
+                )
+            }
         })
     } catch (err) {
         console.error("Error fetching block:", err)
