@@ -2,7 +2,7 @@ const Web3 = require("web3")
 const TelegramBot = require("node-telegram-bot-api")
 
 const provider_eth = new Web3.providers.WebsocketProvider(
-    "wss://eth-goerli.g.alchemy.com/v2/1MbIIGJZEo4JkJW1jXVjnQuK9x6WqRLO"
+    "wss://eth-mainnet.g.alchemy.com/v2/thm7q9I_LFw_F2X5GXkAmfU4gcLS9M52"
 )
 
 const web3 = new Web3(provider_eth)
@@ -10,10 +10,12 @@ const web3 = new Web3(provider_eth)
 const bot = new TelegramBot("5973987480:AAG6pf9eQ4UqsPSp454IVF3LNVuf2xFy_tw", {
     polling: true,
 })
+let lastActiveChatId = null
 
 const trackedWords = new Set()
 
 bot.onText(/\/track (.+)/, (msg, match) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     const word = match[1]
     trackedWords.add(word)
@@ -25,6 +27,7 @@ bot.onText(/\/track (.+)/, (msg, match) => {
 })
 
 bot.onText(/\/t (.+)/, (msg, match) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     const word = match[1]
     trackedWords.add(word)
@@ -37,6 +40,7 @@ bot.onText(/\/t (.+)/, (msg, match) => {
 })
 
 bot.onText(/\/untrack (.+)/, (msg, match) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     const word = match[1]
     trackedWords.delete(word)
@@ -54,6 +58,7 @@ bot.onText(/\/untrack (.+)/, (msg, match) => {
 })
 
 bot.onText(/\/ut (.+)/, (msg, match) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     const word = match[1]
     trackedWords.delete(word)
@@ -71,6 +76,7 @@ bot.onText(/\/ut (.+)/, (msg, match) => {
 })
 
 bot.onText(/\/list/, (msg) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     if (trackedWords.size > 0) {
         bot.sendMessage(
@@ -84,6 +90,7 @@ bot.onText(/\/list/, (msg) => {
 })
 
 bot.onText(/\/l/, (msg) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     if (trackedWords.size > 0) {
         bot.sendMessage(
@@ -97,6 +104,7 @@ bot.onText(/\/l/, (msg) => {
 })
 
 bot.onText(/\/help/, (msg) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     bot.sendMessage(
         chatId,
@@ -109,6 +117,7 @@ bot.onText(/\/help/, (msg) => {
 })
 
 bot.onText(/\/h/, (msg) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     bot.sendMessage(
         chatId,
@@ -117,6 +126,7 @@ bot.onText(/\/h/, (msg) => {
 })
 
 bot.onText(/\/clear/, (msg) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     trackedWords.clear()
     bot.sendMessage(chatId, `Cleared all tracked words.`)
@@ -124,135 +134,12 @@ bot.onText(/\/clear/, (msg) => {
 })
 
 bot.onText(/\/c/, (msg) => {
+    lastActiveChatId = msg.chat.id
     const chatId = msg.chat.id
     trackedWords.clear()
     bot.sendMessage(chatId, `Cleared all tracked words.`)
     console.log(trackedWords)
 })
-
-const factoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
-
-const factoryABI = [
-    {
-        inputs: [
-            { internalType: "address", name: "_feeToSetter", type: "address" },
-        ],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "constructor",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: true,
-                internalType: "address",
-                name: "token0",
-                type: "address",
-            },
-            {
-                indexed: true,
-                internalType: "address",
-                name: "token1",
-                type: "address",
-            },
-            {
-                indexed: false,
-                internalType: "address",
-                name: "pair",
-                type: "address",
-            },
-            {
-                indexed: false,
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        name: "PairCreated",
-        type: "event",
-    },
-    {
-        constant: true,
-        inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-        name: "allPairs",
-        outputs: [{ internalType: "address", name: "", type: "address" }],
-        payable: false,
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        constant: true,
-        inputs: [],
-        name: "allPairsLength",
-        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-        payable: false,
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        constant: false,
-        inputs: [
-            { internalType: "address", name: "tokenA", type: "address" },
-            { internalType: "address", name: "tokenB", type: "address" },
-        ],
-        name: "createPair",
-        outputs: [{ internalType: "address", name: "pair", type: "address" }],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        constant: true,
-        inputs: [],
-        name: "feeTo",
-        outputs: [{ internalType: "address", name: "", type: "address" }],
-        payable: false,
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        constant: true,
-        inputs: [],
-        name: "feeToSetter",
-        outputs: [{ internalType: "address", name: "", type: "address" }],
-        payable: false,
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        constant: true,
-        inputs: [
-            { internalType: "address", name: "", type: "address" },
-            { internalType: "address", name: "", type: "address" },
-        ],
-        name: "getPair",
-        outputs: [{ internalType: "address", name: "", type: "address" }],
-        payable: false,
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        constant: false,
-        inputs: [{ internalType: "address", name: "_feeTo", type: "address" }],
-        name: "setFeeTo",
-        outputs: [],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        constant: false,
-        inputs: [
-            { internalType: "address", name: "_feeToSetter", type: "address" },
-        ],
-        name: "setFeeToSetter",
-        outputs: [],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-]
 
 const tokenABI = [
     {
@@ -270,8 +157,6 @@ const tokenABI = [
     },
 ]
 
-const factoryContract = new web3.eth.Contract(factoryABI, factoryAddress)
-
 web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
     if (error) {
         console.error("Error:", error)
@@ -280,23 +165,73 @@ web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
 
     const blockNumber = blockHeader.number
     try {
-        const block = await web3.eth.getBlock(blockNumber, true) // Set the second argument to true to get transaction details
+        const block = await web3.eth.getBlock(blockNumber, true)
         const transactionCount = block.transactions.length
         console.log(
             `Block number: ${blockNumber} - Transaction count: ${transactionCount}`
         )
-        // check if to = null then it is a token creation, and then check the logs for the name
+
         block.transactions.forEach((transaction) => {
-            console.log(`TxHash ${transaction.hash} To: ${transaction.to}`)
-            // rewrite this later to check for the event PairCreated
             if (transaction.to === null) {
                 web3.eth.getTransactionReceipt(
                     transaction.hash,
                     (error, receipt) => {
                         if (error) {
-                            console.error(error)
+                            if (!error.message.includes("execution reverted")) {
+                            }
                         } else {
-                            console.log(receipt.logs)
+                            const tokenContract = new web3.eth.Contract(
+                                tokenABI,
+                                receipt.contractAddress
+                            )
+                            tokenContract.methods
+                                .name()
+                                .call((err, tokenName) => {
+                                    if (err) {
+                                        if (
+                                            !err.message.includes(
+                                                "execution reverted"
+                                            ) ||
+                                            !err.message.includes(
+                                                "Returned values aren't valid"
+                                            )
+                                        ) {
+                                        }
+                                    } else {
+                                        let shouldLog = false
+                                        for (let word of trackedWords) {
+                                            if (
+                                                tokenName
+                                                    .toLowerCase()
+                                                    .includes(
+                                                        word.toLowerCase()
+                                                    )
+                                            ) {
+                                                shouldLog = true
+                                                break
+                                            }
+                                        }
+                                        if (shouldLog) {
+                                            if (lastActiveChatId) {
+                                                bot.sendMessage(
+                                                    lastActiveChatId,
+                                                    `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}"> ${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
+                                                    {
+                                                        parse_mode: "HTML",
+                                                        disable_web_page_preview: true,
+                                                    }
+                                                )
+                                            }
+                                            console.log(
+                                                `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}">${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
+                                                {
+                                                    parse_mode: "HTML",
+                                                    disable_web_page_preview: true,
+                                                }
+                                            )
+                                        }
+                                    }
+                                })
                         }
                     }
                 )
