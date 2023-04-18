@@ -298,3 +298,5 @@ web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
 })
 
 console.log("Listening for new tokens...")
+
+//TODO: Get a better RPC provider
