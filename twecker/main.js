@@ -157,99 +157,89 @@ const tokenABI = [
     },
 ]
 
-const main = () => {
-    web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
-        if (error) {
-            console.error("Error:", error)
-            return
-        }
+web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
+    if (error) {
+        console.error("Error:", error)
+        return
+    }
 
-        const blockNumber = blockHeader.number
-        try {
-            const block = await web3.eth.getBlock(blockNumber, true)
-            const transactionCount = block.transactions.length
-            console.log(
-                `Block number: ${blockNumber} - Transaction count: ${transactionCount}`
-            )
+    const blockNumber = blockHeader.number
+    try {
+        const block = await web3.eth.getBlock(blockNumber, true)
+        const transactionCount = block.transactions.length
+        console.log(
+            `Block number: ${blockNumber} - Transaction count: ${transactionCount}`
+        )
 
-            block.transactions.forEach((transaction) => {
-                if (transaction.to === null) {
-                    web3.eth.getTransactionReceipt(
-                        transaction.hash,
-                        (error, receipt) => {
-                            if (error) {
-                                if (
-                                    !error.message.includes(
-                                        "execution reverted"
-                                    )
-                                ) {
-                                }
-                            } else {
-                                const tokenContract = new web3.eth.Contract(
-                                    tokenABI,
-                                    receipt.contractAddress
-                                )
-                                tokenContract.methods
-                                    .name()
-                                    .call((err, tokenName) => {
-                                        if (err) {
+        block.transactions.forEach((transaction) => {
+            if (transaction.to === null) {
+                web3.eth.getTransactionReceipt(
+                    transaction.hash,
+                    (error, receipt) => {
+                        if (error) {
+                            if (!error.message.includes("execution reverted")) {
+                            }
+                        } else {
+                            const tokenContract = new web3.eth.Contract(
+                                tokenABI,
+                                receipt.contractAddress
+                            )
+                            tokenContract.methods
+                                .name()
+                                .call((err, tokenName) => {
+                                    if (err) {
+                                        if (
+                                            !err.message.includes(
+                                                "execution reverted"
+                                            ) ||
+                                            !err.message.includes(
+                                                "Returned values aren't valid"
+                                            )
+                                        ) {
+                                        }
+                                    } else {
+                                        let shouldLog = false
+                                        for (let word of trackedWords) {
                                             if (
-                                                !err.message.includes(
-                                                    "execution reverted"
-                                                ) ||
-                                                !err.message.includes(
-                                                    "Returned values aren't valid"
-                                                )
-                                            ) {
-                                            }
-                                        } else {
-                                            let shouldLog = false
-                                            for (let word of trackedWords) {
-                                                if (
-                                                    tokenName
-                                                        .toLowerCase()
-                                                        .includes(
-                                                            word.toLowerCase()
-                                                        )
-                                                ) {
-                                                    shouldLog = true
-                                                    break
-                                                }
-                                            }
-                                            if (shouldLog) {
-                                                if (lastActiveChatId) {
-                                                    bot.sendMessage(
-                                                        lastActiveChatId,
-                                                        `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}"> ${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
-                                                        {
-                                                            parse_mode: "HTML",
-                                                            disable_web_page_preview: true,
-                                                        }
+                                                tokenName
+                                                    .toLowerCase()
+                                                    .includes(
+                                                        word.toLowerCase()
                                                     )
-                                                }
-                                                console.log(
-                                                    `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}">${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
+                                            ) {
+                                                shouldLog = true
+                                                break
+                                            }
+                                        }
+                                        if (shouldLog) {
+                                            if (lastActiveChatId) {
+                                                bot.sendMessage(
+                                                    lastActiveChatId,
+                                                    `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}"> ${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
                                                     {
                                                         parse_mode: "HTML",
                                                         disable_web_page_preview: true,
                                                     }
                                                 )
                                             }
+                                            console.log(
+                                                `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}">${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
+                                                {
+                                                    parse_mode: "HTML",
+                                                    disable_web_page_preview: true,
+                                                }
+                                            )
                                         }
-                                    })
-                            }
+                                    }
+                                })
                         }
-                    )
-                }
-            })
-        } catch (err) {
-            console.error("Error fetching block:", err)
-            main()
-            console.log("Listening for new tokens...")
-        }
-    })
-}
-
-main()
+                    }
+                )
+            }
+        })
+    } catch (err) {
+        console.error("Error fetching block:", err)
+    }
+})
 
 console.log("Listening for new tokens...")
