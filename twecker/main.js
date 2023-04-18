@@ -10,135 +10,138 @@ const web3 = new Web3(provider_eth)
 const bot = new TelegramBot("5973987480:AAG6pf9eQ4UqsPSp454IVF3LNVuf2xFy_tw", {
     polling: true,
 })
-let lastActiveChatId = null
 
-const trackedWords = new Set()
+let logAll = false
 
-bot.onText(/\/track (.+)/, (msg, match) => {
-    lastActiveChatId = msg.chat.id
+const trackedWordsByChatId = {}
+
+bot.onText(/\/(track|t) (.+)/, (msg, match) => {
     const chatId = msg.chat.id
-    const word = match[1]
-    trackedWords.add(word)
-    bot.sendMessage(
-        chatId,
-        `Now tracking tokens with "${[...trackedWords]}" in the name.`
-    )
-    console.log(trackedWords)
-})
+    const word = match[2]
 
-bot.onText(/\/t (.+)/, (msg, match) => {
-    lastActiveChatId = msg.chat.id
-    const chatId = msg.chat.id
-    const word = match[1]
-    trackedWords.add(word)
+    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
+    if (!trackedWordsByChatId[chatId]) {
+        trackedWordsByChatId[chatId] = new Set()
+    }
+
+    trackedWordsByChatId[chatId].add(word)
 
     bot.sendMessage(
         chatId,
-        `Now tracking tokens with "${[...trackedWords]}" in the name.`
+        `Now tracking tokens with "${[
+            ...trackedWordsByChatId[chatId],
+        ]}" in the name.`
     )
-    console.log(trackedWords)
+    console.log(trackedWordsByChatId)
 })
 
-bot.onText(/\/untrack (.+)/, (msg, match) => {
-    lastActiveChatId = msg.chat.id
+bot.onText(/\/(untrack|ut) (.+)/, (msg, match) => {
     const chatId = msg.chat.id
-    const word = match[1]
-    trackedWords.delete(word)
+    const word = match[2]
+
+    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
+    if (!trackedWordsByChatId[chatId]) {
+        trackedWordsByChatId[chatId] = new Set()
+    }
+
+    trackedWordsByChatId[chatId].delete(word)
     bot.sendMessage(
         chatId,
         `No longer tracking tokens with "${word}" in the name.`
     )
-    if (trackedWords.size > 0) {
+    if (trackedWordsByChatId[chatId].size > 0) {
         bot.sendMessage(
             chatId,
-            `Still tracking tokens with "${[...trackedWords]}" in the name.`
+            `Still tracking tokens with "${[
+                ...trackedWordsByChatId[chatId],
+            ]}" in the name.`
         )
     }
-    console.log(trackedWords)
+    console.log(trackedWordsByChatId)
 })
 
-bot.onText(/\/ut (.+)/, (msg, match) => {
-    lastActiveChatId = msg.chat.id
+bot.onText(/\/(all|a)/, (msg) => {
     const chatId = msg.chat.id
-    const word = match[1]
-    trackedWords.delete(word)
-    bot.sendMessage(
-        chatId,
-        `No longer tracking tokens with "${word}" in the name.`
-    )
-    if (trackedWords.size > 0) {
-        bot.sendMessage(
-            chatId,
-            `Still tracking tokens with "${[...trackedWords]}" in the name.`
-        )
+
+    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
+    if (!trackedWordsByChatId[chatId]) {
+        trackedWordsByChatId[chatId] = new Set()
     }
-    console.log(trackedWords)
-})
 
-bot.onText(/\/list/, (msg) => {
-    lastActiveChatId = msg.chat.id
-    const chatId = msg.chat.id
-    if (trackedWords.size > 0) {
+    if (logAll) {
         bot.sendMessage(
             chatId,
-            `Currently tracking tokens with "${[...trackedWords]}" in the name.`
+            `Logging all tokens is already enabled.`
+        )
+        return
+    }
+
+    logAll = true
+
+    bot.sendMessage(chatId, `Now logging all token deployments.`)
+})
+
+bot.onText(/\/(none|n)/, (msg) => {
+    const chatId = msg.chat.id
+
+    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
+    if (!trackedWordsByChatId[chatId]) {
+        trackedWordsByChatId[chatId] = new Set()
+    }
+
+    if (!logAll) {
+        bot.sendMessage(
+            chatId,
+            `Logging all tokens was already disabled.`
+        )
+        return
+    }
+
+    logAll = false
+
+    bot.sendMessage(chatId, `No longer logging all token deployments.`)
+})
+
+bot.onText(/\/(list|l)/, (msg) => {
+    const chatId = msg.chat.id
+
+    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
+    if (!trackedWordsByChatId[chatId]) {
+        trackedWordsByChatId[chatId] = new Set()
+    }
+
+    if (trackedWordsByChatId[chatId].size > 0) {
+        bot.sendMessage(
+            chatId,
+            `Currently tracking tokens with "${[
+                ...trackedWordsByChatId[chatId],
+            ]}" in the name.`
         )
     } else {
         bot.sendMessage(chatId, "No tracked words.")
     }
-    console.log(trackedWords)
+    console.log(trackedWordsByChatId)
 })
 
-bot.onText(/\/l/, (msg) => {
-    lastActiveChatId = msg.chat.id
+bot.onText(/\/(help|h)/, (msg) => {
     const chatId = msg.chat.id
-    if (trackedWords.size > 0) {
-        bot.sendMessage(
-            chatId,
-            `Currently tracking tokens with "${[...trackedWords]}" in the name.`
-        )
-    } else {
-        bot.sendMessage(chatId, "No tracked words.")
+    bot.sendMessage(
+        chatId,
+        "Commands:\n/list or /l - list all tracked words\n/clear or /c - clear all tracked words\n/help or /h - show this message\n/all or /a - tracks all tokens being deployed\n/none or /n stops tracking all tokens being deployed\n/track or /t <word> - track tokens with <word> in the name\n/untrack or /ut <word> - stop tracking tokens with <word> in the name"
+    )
+})
+
+bot.onText(/\/(clear|c)/, (msg) => {
+    const chatId = msg.chat.id
+
+    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
+    if (!trackedWordsByChatId[chatId]) {
+        trackedWordsByChatId[chatId] = new Set()
     }
-    console.log(trackedWords)
-})
 
-bot.onText(/\/help/, (msg) => {
-    lastActiveChatId = msg.chat.id
-    const chatId = msg.chat.id
-    bot.sendMessage(
-        chatId,
-        `Commands:
-        /track <word> - track tokens with <word> in the name
-        /untrack <word> - stop tracking tokens with <word> in the name
-        /list - list all tracked words
-        /help - show this message`
-    )
-})
-
-bot.onText(/\/h/, (msg) => {
-    lastActiveChatId = msg.chat.id
-    const chatId = msg.chat.id
-    bot.sendMessage(
-        chatId,
-        "Commands:\n/list or /l - list all tracked words\n/clear or /c - clear all tracked words\n/help or /h - show this message\n/track or /t <word> - track tokens with <word> in the name\n/untrack or /ut <word> - stop tracking tokens with <word> in the name"
-    )
-})
-
-bot.onText(/\/clear/, (msg) => {
-    lastActiveChatId = msg.chat.id
-    const chatId = msg.chat.id
-    trackedWords.clear()
+    trackedWordsByChatId[chatId].clear()
     bot.sendMessage(chatId, `Cleared all tracked words.`)
-    console.log(trackedWords)
-})
-
-bot.onText(/\/c/, (msg) => {
-    lastActiveChatId = msg.chat.id
-    const chatId = msg.chat.id
-    trackedWords.clear()
-    bot.sendMessage(chatId, `Cleared all tracked words.`)
-    console.log(trackedWords)
+    console.log(trackedWordsByChatId)
 })
 
 const tokenABI = [
@@ -198,23 +201,12 @@ web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
                                         ) {
                                         }
                                     } else {
-                                        let shouldLog = false
-                                        for (let word of trackedWords) {
-                                            if (
-                                                tokenName
-                                                    .toLowerCase()
-                                                    .includes(
-                                                        word.toLowerCase()
-                                                    )
-                                            ) {
-                                                shouldLog = true
-                                                break
-                                            }
-                                        }
-                                        if (shouldLog) {
-                                            if (lastActiveChatId) {
+                                        Object.entries(
+                                            trackedWordsByChatId
+                                        ).forEach(([chatId, trackedWords]) => {
+                                            if (logAll) {
                                                 bot.sendMessage(
-                                                    lastActiveChatId,
+                                                    chatId,
                                                     `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}"> ${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
                                                     {
                                                         parse_mode: "HTML",
@@ -222,14 +214,30 @@ web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
                                                     }
                                                 )
                                             }
-                                            console.log(
-                                                `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}">${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
-                                                {
-                                                    parse_mode: "HTML",
-                                                    disable_web_page_preview: true,
+                                            let shouldLog = false
+                                            for (let word of trackedWords) {
+                                                if (
+                                                    tokenName
+                                                        .toLowerCase()
+                                                        .includes(
+                                                            word.toLowerCase()
+                                                        )
+                                                ) {
+                                                    shouldLog = true
+                                                    break
                                                 }
-                                            )
-                                        }
+                                            }
+                                            if (shouldLog) {
+                                                bot.sendMessage(
+                                                    chatId,
+                                                    `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}"> ${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
+                                                    {
+                                                        parse_mode: "HTML",
+                                                        disable_web_page_preview: true,
+                                                    }
+                                                )
+                                            }
+                                        })
                                     }
                                 })
                         }
