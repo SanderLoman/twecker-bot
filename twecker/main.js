@@ -222,6 +222,11 @@ web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
                                     log.topics[0] === PairCreatedEventSignature
                             )
 
+                            if (pairCreatedEvent === null) {
+                                console.log("Error, logs equal null")
+                                return
+                            }
+
                             console.log("pairCreatedEvent", pairCreatedEvent)
 
                             if (pairCreatedEvent) {
