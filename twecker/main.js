@@ -19,7 +19,6 @@ bot.onText(/\/(track|t) (.+)/, (msg, match) => {
     const chatId = msg.chat.id
     const word = match[2]
 
-    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
     if (!trackedWordsByChatId[chatId]) {
         trackedWordsByChatId[chatId] = new Set()
     }
@@ -39,7 +38,6 @@ bot.onText(/\/(untrack|ut) (.+)/, (msg, match) => {
     const chatId = msg.chat.id
     const word = match[2]
 
-    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
     if (!trackedWordsByChatId[chatId]) {
         trackedWordsByChatId[chatId] = new Set()
     }
@@ -63,7 +61,6 @@ bot.onText(/\/(untrack|ut) (.+)/, (msg, match) => {
 bot.onText(/\/(all|a)/, (msg) => {
     const chatId = msg.chat.id
 
-    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
     if (!trackedWordsByChatId[chatId]) {
         trackedWordsByChatId[chatId] = new Set()
     }
@@ -81,7 +78,6 @@ bot.onText(/\/(all|a)/, (msg) => {
 bot.onText(/\/(none|n)/, (msg) => {
     const chatId = msg.chat.id
 
-    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
     if (!trackedWordsByChatId[chatId]) {
         trackedWordsByChatId[chatId] = new Set()
     }
@@ -99,7 +95,6 @@ bot.onText(/\/(none|n)/, (msg) => {
 bot.onText(/\/(list|l)/, (msg) => {
     const chatId = msg.chat.id
 
-    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
     if (!trackedWordsByChatId[chatId]) {
         trackedWordsByChatId[chatId] = new Set()
     }
@@ -128,7 +123,6 @@ bot.onText(/\/(help|h)/, (msg) => {
 bot.onText(/\/(clear|c)/, (msg) => {
     const chatId = msg.chat.id
 
-    // Check if the chatId exists in trackedWordsByChatId, otherwise create a new Set
     if (!trackedWordsByChatId[chatId]) {
         trackedWordsByChatId[chatId] = new Set()
     }
