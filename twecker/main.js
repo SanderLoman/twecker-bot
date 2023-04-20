@@ -11,8 +11,7 @@ const bot = new TelegramBot("5973987480:AAG6pf9eQ4UqsPSp454IVF3LNVuf2xFy_tw", {
     polling: true,
 })
 
-let logAll = false
-
+const logAllByChatId = {}
 const trackedWordsByChatId = {}
 
 bot.onText(/\/(track|t) (.+)/, (msg, match) => {
@@ -61,16 +60,16 @@ bot.onText(/\/(untrack|ut) (.+)/, (msg, match) => {
 bot.onText(/\/(all|a)/, (msg) => {
     const chatId = msg.chat.id
 
-    if (!trackedWordsByChatId[chatId]) {
-        trackedWordsByChatId[chatId] = new Set()
+    if (!logAllByChatId[chatId]) {
+        logAllByChatId[chatId] = false
     }
 
-    if (logAll) {
+    if (logAllByChatId[chatId]) {
         bot.sendMessage(chatId, `Logging all tokens is already enabled.`)
         return
     }
 
-    logAll = true
+    logAllByChatId[chatId] = true
 
     bot.sendMessage(chatId, `Now logging all token deployments.`)
 })
@@ -78,16 +77,16 @@ bot.onText(/\/(all|a)/, (msg) => {
 bot.onText(/\/(none|n)/, (msg) => {
     const chatId = msg.chat.id
 
-    if (!trackedWordsByChatId[chatId]) {
-        trackedWordsByChatId[chatId] = new Set()
+    if (!logAllByChatId[chatId]) {
+        logAllByChatId[chatId] = false
     }
 
-    if (!logAll) {
+    if (!logAllByChatId[chatId]) {
         bot.sendMessage(chatId, `Logging all tokens was already disabled.`)
         return
     }
 
-    logAll = false
+    logAllByChatId[chatId] = false
 
     bot.sendMessage(chatId, `No longer logging all token deployments.`)
 })
@@ -241,7 +240,9 @@ web3.eth.subscribe("newBlockHeaders", async (error, blockHeader) => {
                                                 trackedWordsByChatId
                                             ).forEach(
                                                 ([chatId, trackedWords]) => {
-                                                    if (logAll) {
+                                                    if (
+                                                        logAllByChatId[chatId]
+                                                    ) {
                                                         bot.sendMessage(
                                                             chatId,
                                                             `⚠️⚠️⚠️ TOKEN FOUND ⚠️⚠️⚠️\n\nToken created: <a href="https://etherscan.io/token/${receipt.contractAddress}">${tokenName}</a>\nAddress:<code><a href="copy:${receipt.contractAddress}"> ${receipt.contractAddress}</a></code>\nBlock Number: <a href="https://etherscan.io/block/${blockNumber}">${blockNumber}</a>\nTransaction Hash: <a href="https://etherscan.io/tx/${transaction.hash}">TxHash</a>`,
