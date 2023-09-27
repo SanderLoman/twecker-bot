@@ -35,10 +35,13 @@ This Telegram bot is designed to track newly deployed tokens on the Ethereum net
 3. Install the required packages:
 
     ```bash
-    `yarn add` or `npm i`
+    yarn add
     ```
-
-4. Add your Telegram bot token and Ethereum Websocket Provider URL to the code.
+    or
+    ```bash
+    npm i
+    ```
+5. Add your Telegram bot token and Ethereum Websocket Provider URL to the code.
 
 ## Usage
 
