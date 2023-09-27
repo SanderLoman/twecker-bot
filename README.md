@@ -50,7 +50,11 @@ This Telegram bot is designed to track newly deployed tokens on the Ethereum net
 1. Start the bot:
 
     ```bash
-    node index.js
+    cd twecker
+    ```
+
+    ```bash
+    node main.js
     ```
 
 2. Open Telegram and start a chat with your bot.
