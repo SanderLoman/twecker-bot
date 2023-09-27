@@ -42,6 +42,7 @@ bot.onText(/\/(untrack|ut) (.+)/, (msg, match) => {
     }
 
     trackedWordsByChatId[chatId].delete(word)
+    
     bot.sendMessage(
         chatId,
         `No longer tracking tokens with "${word}" in the name.`
