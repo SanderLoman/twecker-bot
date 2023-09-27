@@ -2,12 +2,12 @@ const Web3 = require("web3")
 const TelegramBot = require("node-telegram-bot-api")
 
 const provider_eth = new Web3.providers.WebsocketProvider(
-    "wss://eth-mainnet.g.alchemy.com/v2/thm7q9I_LFw_F2X5GXkAmfU4gcLS9M52"
+    "YOUR_WEB3_RPC_URL_HERE"
 )
 
 const web3 = new Web3(provider_eth)
 
-const bot = new TelegramBot("5973987480:AAG6pf9eQ4UqsPSp454IVF3LNVuf2xFy_tw", {
+const bot = new TelegramBot("YOUR_TELEGRAM_BOT_TOKEN_HERE", {
     polling: true,
 })
 
