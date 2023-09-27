@@ -41,7 +41,9 @@ This Telegram bot is designed to track newly deployed tokens on the Ethereum net
     ```bash
     npm i
     ```
-5. Add your Telegram bot token and Ethereum Websocket Provider URL to the code.
+5. Add your Telegram bot token and Ethereum Websocket Provider URL to the code:
+
+   Replace these on line `5` and `10`: `YOUR_WEB3_RPC_URL_HERE` and `YOUR_TELEGRAM_BOT_TOKEN_HERE`
 
 ## Usage
 
