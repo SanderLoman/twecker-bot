@@ -59,6 +59,8 @@ This Telegram bot is designed to track newly deployed tokens on the Ethereum net
 
 2. Open Telegram and start a chat with your bot.
 
+    This is the bots username: `@TweckerBot`
+
 3. Use the following commands to interact with the bot:
 
     - `/track <tokenname>` or `/t <tokenname>`: Track tokens with a specific name.
