@@ -35,7 +35,7 @@ This Telegram bot is designed to track newly deployed tokens on the Ethereum net
 3. Install the required packages:
 
     ```bash
-    yarn add
+    yarn
     ```
     or
     ```bash
